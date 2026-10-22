@@ -46,3 +46,35 @@ public struct Shot: Codable, Hashable, Sendable {
         self.accuracy = accuracy
     }
 }
+
+public extension Round {
+    /// Strokes recorded so far.
+    var totalStrokes: Int { holes.compactMap(\.strokes).reduce(0, +) }
+
+    var playedHoleCount: Int { holes.filter { $0.strokes != nil }.count }
+
+    /// Score relative to par over the played holes, or nil if any played hole lacks a par.
+    func toPar(on course: Course) -> Int? {
+        var total = 0
+        for score in holes {
+            guard let strokes = score.strokes else { continue }
+            guard let par = course.hole(number: score.number)?.par else { return nil }
+            total += strokes - par
+        }
+        return total
+    }
+
+    mutating func setStrokes(_ strokes: Int?, hole number: Int) {
+        guard let i = holes.firstIndex(where: { $0.number == number }) else { return }
+        holes[i].strokes = strokes.map { max(1, min($0, 20)) }
+    }
+
+    func strokes(hole number: Int) -> Int? {
+        holes.first { $0.number == number }?.strokes
+    }
+}
+
+/// Formats a to-par value the way a scorecard does: "E", "+3", "-1".
+public func formatToPar(_ value: Int) -> String {
+    value == 0 ? "E" : (value > 0 ? "+\(value)" : "\(value)")
+}

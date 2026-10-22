@@ -2,7 +2,9 @@ import SwiftUI
 
 /// Licence, attribution and credits. ODbL requires the OpenStreetMap attribution to be visible in the app.
 struct AboutView: View {
+    var onNewRound: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
+    @State private var confirmNewRound = false
 
     private var version: String {
         let v = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
@@ -13,6 +15,16 @@ struct AboutView: View {
     var body: some View {
         NavigationStack {
             List {
+                if onNewRound != nil {
+                    Section("Round") {
+                        Button("Start a new round", role: .destructive) { confirmNewRound = true }
+                            .confirmationDialog("Clear the scorecard and start a new round?", isPresented: $confirmNewRound, titleVisibility: .visible) {
+                                Button("Start new round", role: .destructive) { onNewRound?(); dismiss() }
+                            }
+                        Text("The current round stays saved as a file in the app's Documents folder.")
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 Section {
                     LabeledContent("Version", value: version)
                     LabeledContent("Licence", value: "AGPL-3.0 with App Store exception")
