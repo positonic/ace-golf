@@ -87,3 +87,19 @@ Location log: JSON lines, one fix per line: `{ t, lat, lon, acc, alt?, speed? }`
 5. **Acceptance (30 min).** Play `prenden-walk.gpx` through the simulator and the device; walk hole 1 and hole 8; install final build on the phone; About screen with OSM attribution.
 
 User tasks tonight: Apple Maps zoom check over Prenden; pick the 18 hole-line way IDs from the extractor's candidate list.
+
+## Status after the build evening (2026-10-22)
+
+All six round-one tickets merged to `main` (PRs #1 to #6). The app is installed on the iPhone 17 Pro from `main` at `72876c8`.
+
+Shipped: satellite hole map with overlays and chord rotation, prev/next, live position with accuracy ring, front/middle/back, tap-to-measure, location log (Documents/logs/*.jsonl), About with ODbL attribution, scorecard with round file (Documents/rounds/*.json, empty `shots` per hole).
+
+Verified in the simulator with a simulated walk of hole 1; GolfCore has 24 passing tests. Not yet verified: a real outdoor GPS fix, and the dimmed-values state (the simulator always reports 5 m accuracy).
+
+Calibration note: MapKit's visible ground height at pitch 0 is about 0.58 × camera distance on an iPhone 17 Pro. `HoleCamera` uses that to fit each hole between the header and the bottom panels.
+
+Tomorrow after the round: copy `Documents/logs/*.jsonl` and `Documents/rounds/*.json` off the phone (Finder → iPhone → Files → Ace Golf) into `data/tracks/` as the first real fixtures. Note what annoyed you on the course before reading the backlog.
+
+OSM fixes to contribute back at Prenden: tee names "Abschlah weiß", "Abschlag Rot1", and a tee tagged "Drope Zone" (probably a drop zone, not a tee).
+
+Tooling notes: use Homebrew Python 3.13 for the extractor (Xcode's 3.9 has a TLS failure against overpass-api.de); `simctl location start` needs waypoints on stdin from zsh; the `exponential` CLI must be run with `HOME=/Users/james/.config/agent-homes/claude`.
