@@ -27,6 +27,8 @@ targets:
       path: AceGolf/Info.plist
       properties:
         CFBundleDisplayName: Ace Golf
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         NSLocationWhenInUseUsageDescription: Ace Golf uses your position to show distances to the green and to log your round.
