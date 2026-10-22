@@ -9,7 +9,7 @@ struct HoleMapView: View {
     /// Tap-to-measure target. Set by tapping the map; cleared by the owner.
     @Binding var measurePoint: Coordinate?
     /// Points covered by the header and the distance panel, so the hole is fitted between them.
-    var insets = HoleCamera.Insets(top: 130, bottom: 200)
+    var insets = HoleCamera.Insets(top: 130, bottom: 270)
 
     @State private var camera: MapCameraPosition = .automatic
     @State private var viewSize: CGSize = .zero

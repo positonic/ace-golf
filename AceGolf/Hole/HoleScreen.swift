@@ -10,9 +10,12 @@ struct HoleScreen: View {
     @State private var showAbout = false
     @Environment(\.scenePhase) private var scenePhase
 
+    @State private var roundStore: RoundStore
+
     init(course: Course, initialHole: Int) {
         self.course = course
         _holeNumber = State(initialValue: initialHole)
+        _roundStore = State(initialValue: RoundStore(course: course))
     }
 
     private var hole: Hole? { course.hole(number: holeNumber) }
@@ -26,7 +29,8 @@ struct HoleScreen: View {
     var body: some View {
         ZStack {
             if let hole {
-                HoleMapView(hole: hole, fix: location.latest, measurePoint: $measurePoint).ignoresSafeArea()
+                HoleMapView(hole: hole, fix: location.latest, measurePoint: $measurePoint,
+                            insets: HoleCamera.Insets(top: 130, bottom: 270)).ignoresSafeArea()
             } else {
                 ContentUnavailableView("No hole \(holeNumber)", systemImage: "flag.slash")
             }
@@ -34,12 +38,13 @@ struct HoleScreen: View {
                 header
                 measureChip
                 Spacer()
+                ScorecardStrip(course: course, store: roundStore, selectedHole: $holeNumber)
                 DistancePanel(distances: distances, fix: location.latest, isDenied: location.isDenied)
             }
         }
         .task { location.start() }
         .onChange(of: holeNumber) { measurePoint = nil }
-        .sheet(isPresented: $showAbout) { AboutView() }
+        .sheet(isPresented: $showAbout) { AboutView(onNewRound: { roundStore.startNewRound(); holeNumber = course.holes.first?.number ?? 1 }) }
         .onChange(of: scenePhase) { _, phase in
             // Foreground only by design: no background location, no battery drain in the pocket.
             if phase == .active { location.start() } else if phase == .background { location.stop() }
