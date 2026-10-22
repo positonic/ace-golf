@@ -42,13 +42,13 @@ public struct Hole: Codable, Hashable, Sendable {
     /// The OSM `golf=hole` centreline, tee first, green last.
     public var line: [Coordinate]
     public var green: Polygon
-    public var tees: [Polygon]
+    public var tees: [Tee]
     public var fairways: [Polygon]
     public var bunkers: [Polygon]
     public var water: [Polygon]
 
     public init(number: Int, par: Int? = nil, handicap: Int? = nil, line: [Coordinate], green: Polygon,
-                tees: [Polygon] = [], fairways: [Polygon] = [], bunkers: [Polygon] = [], water: [Polygon] = []) {
+                tees: [Tee] = [], fairways: [Polygon] = [], bunkers: [Polygon] = [], water: [Polygon] = []) {
         self.number = number
         self.par = par
         self.handicap = handicap
@@ -58,5 +58,17 @@ public struct Hole: Codable, Hashable, Sendable {
         self.fairways = fairways
         self.bunkers = bunkers
         self.water = water
+    }
+}
+
+/// A tee pad. `name` is OSM's tag when present (Prenden tags about half of them, e.g. "Abschlag Gelb");
+/// kept so tee selection can be added later without re-extracting.
+public struct Tee: Codable, Hashable, Sendable {
+    public var name: String?
+    public var polygon: Polygon
+
+    public init(name: String? = nil, polygon: Polygon) {
+        self.name = name
+        self.polygon = polygon
     }
 }
