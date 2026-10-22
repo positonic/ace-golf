@@ -1,0 +1,38 @@
+name: AceGolf
+options:
+  bundleIdPrefix: com.jamesfarrell
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: BS6548CN7Z
+    CODE_SIGN_STYLE: Automatic
+packages:
+  GolfCore:
+    path: Packages/GolfCore
+targets:
+  AceGolf:
+    type: application
+    platform: iOS
+    sources:
+      - path: AceGolf
+    dependencies:
+      - package: GolfCore
+    info:
+      path: AceGolf/Info.plist
+      properties:
+        CFBundleDisplayName: Ace Golf
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        NSLocationWhenInUseUsageDescription: Ace Golf uses your position to show distances to the green and to log your round.
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jamesfarrell.acegolf
+        TARGETED_DEVICE_FAMILY: "1"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_STRICT_CONCURRENCY: complete
