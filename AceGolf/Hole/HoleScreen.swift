@@ -5,6 +5,8 @@ import SwiftUI
 struct HoleScreen: View {
     let course: Course
     @State private var holeNumber: Int
+    @State private var location = LocationService()
+    @Environment(\.scenePhase) private var scenePhase
 
     init(course: Course, initialHole: Int) {
         self.course = course
@@ -14,14 +16,28 @@ struct HoleScreen: View {
     private var hole: Hole? { course.hole(number: holeNumber) }
     private var numbers: [Int] { course.holes.map(\.number) }
 
+    private var distances: GreenDistances? {
+        guard let hole, let fix = location.latest else { return nil }
+        return GreenDistances.from(fix.coordinate, to: hole.green)
+    }
+
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack {
             if let hole {
-                HoleMapView(hole: hole).ignoresSafeArea()
+                HoleMapView(hole: hole, fix: location.latest).ignoresSafeArea()
             } else {
                 ContentUnavailableView("No hole \(holeNumber)", systemImage: "flag.slash")
             }
-            header
+            VStack {
+                header
+                Spacer()
+                DistancePanel(distances: distances, fix: location.latest, isDenied: location.isDenied)
+            }
+        }
+        .task { location.start() }
+        .onChange(of: scenePhase) { _, phase in
+            // Foreground only by design: no background location, no battery drain in the pocket.
+            if phase == .active { location.start() } else if phase == .background { location.stop() }
         }
     }
 
