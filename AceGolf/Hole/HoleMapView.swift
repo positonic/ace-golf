@@ -1,24 +1,39 @@
+import GolfCore
 import MapKit
 import SwiftUI
 
-/// Satellite map. Scaffold version: centred on Golfclub Prenden with no course data yet.
-/// Hole overlays, rotation and distances arrive in later tickets.
+/// Satellite map of one hole, rotated so the green is at the top, with course overlays.
 struct HoleMapView: View {
-    /// Golfclub Prenden clubhouse (OSM way 4756114). Replaced by the course polygon centroid once course data is bundled.
-    private static let prenden = CLLocationCoordinate2D(latitude: 52.7850, longitude: 13.5676)
+    let hole: Hole
 
-    @State private var camera: MapCameraPosition = .camera(
-        MapCamera(centerCoordinate: prenden, distance: 2500, heading: 0, pitch: 0)
-    )
+    @State private var camera: MapCameraPosition = .automatic
+    @State private var viewAspect: Double = 0.46
 
     var body: some View {
-        Map(position: $camera) {
+        GeometryReader { geo in
+            Map(position: $camera, interactionModes: [.pan, .zoom]) {
+                ForEach(HoleOverlay.overlays(for: hole)) { o in
+                    MapPolygon(coordinates: o.ring)
+                        .foregroundStyle(o.fill)
+                        .stroke(o.stroke, lineWidth: o.lineWidth)
+                }
+                MapPolyline(coordinates: hole.line.cl)
+                    .stroke(.white.opacity(0.6), style: StrokeStyle(lineWidth: 1.5, dash: [6, 6]))
+            }
+            .mapStyle(.imagery(elevation: .flat))
+            .mapControlVisibility(.hidden)
+            .onAppear {
+                viewAspect = geo.size.width / max(geo.size.height, 1)
+                recentre()
+            }
+            .onChange(of: hole.number) { recentre() }
+            .onChange(of: geo.size) { viewAspect = geo.size.width / max(geo.size.height, 1) }
         }
-        .mapStyle(.imagery(elevation: .flat))
-        .mapControlVisibility(.hidden)
     }
-}
 
-#Preview {
-    HoleMapView()
+    private func recentre() {
+        withAnimation(.easeInOut(duration: 0.6)) {
+            camera = .camera(HoleCamera.camera(for: hole, viewAspect: viewAspect))
+        }
+    }
 }
