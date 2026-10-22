@@ -40,3 +40,21 @@ targets:
         MARKETING_VERSION: "0.1.0"
         CURRENT_PROJECT_VERSION: "1"
         SWIFT_STRICT_CONCURRENCY: complete
+schemes:
+  AceGolf:
+    build:
+      targets:
+        AceGolf: all
+    run:
+      config: Debug
+      simulateLocation:
+        allow: true
+        defaultLocation: data/tracks/prenden-walk.gpx
+    test:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
