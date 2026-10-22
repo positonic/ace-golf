@@ -6,6 +6,8 @@ import SwiftUI
 struct HoleMapView: View {
     let hole: Hole
     var fix: LocationFix? = nil
+    /// Tap-to-measure target. Set by tapping the map; cleared by the owner.
+    @Binding var measurePoint: Coordinate?
     /// Points covered by the header and the distance panel, so the hole is fitted between them.
     var insets = HoleCamera.Insets(top: 130, bottom: 200)
 
@@ -14,6 +16,7 @@ struct HoleMapView: View {
 
     var body: some View {
         GeometryReader { geo in
+            MapReader { proxy in
             Map(position: $camera, interactionModes: [.pan, .zoom]) {
                 ForEach(HoleOverlay.overlays(for: hole)) { o in
                     MapPolygon(coordinates: o.ring)
@@ -37,6 +40,24 @@ struct HoleMapView: View {
                     }
                     .annotationTitles(.hidden)
                 }
+                if let measurePoint {
+                    if let fix {
+                        MapPolyline(coordinates: [fix.coordinate.cl, measurePoint.cl])
+                            .stroke(.yellow, style: StrokeStyle(lineWidth: 2, dash: [4, 4]))
+                    }
+                    Annotation("", coordinate: measurePoint.cl, anchor: .bottom) {
+                        Image(systemName: "mappin")
+                            .font(.system(size: 30, weight: .bold))
+                            .foregroundStyle(.yellow)
+                            .shadow(radius: 2)
+                    }
+                    .annotationTitles(.hidden)
+                }
+            }
+            .onTapGesture { point in
+                if let c = proxy.convert(point, from: .local) {
+                    measurePoint = Coordinate(latitude: c.latitude, longitude: c.longitude)
+                }
             }
             .mapStyle(.imagery(elevation: .flat))
             .mapControlVisibility(.hidden)
@@ -46,6 +67,7 @@ struct HoleMapView: View {
             }
             .onChange(of: hole.number) { recentre() }
             .onChange(of: geo.size) { viewSize = geo.size }
+            }
         }
     }
 
